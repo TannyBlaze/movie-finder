@@ -6,7 +6,7 @@
         :value="modelValue"
         @input="$emit('update:modelValue', $event.target.value)"
         @keyup.enter="$emit('search')"
-        placeholder="Search anime..."
+        placeholder="Search..."
         class="w-full p-3 pl-10 rounded-lg text-gray-900 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500 transition duration-200"
       />
     </div>
