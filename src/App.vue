@@ -11,7 +11,7 @@
         v-for="cat in categories"
         :key="cat"
         @click="selectCategory(cat)"
-        :class="[
+        :class="[ 
           'px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-400/50',
           activeCategory === cat
             ? 'bg-yellow-400 text-black scale-105'
@@ -48,7 +48,7 @@
       <h2 class="text-2xl font-bold text-yellow-400 mb-4 text-center">
         <i class="fa-solid fa-fire mr-2"></i>Trending {{ activeCategory }}
       </h2>
-      <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6 px-2 sm:px-4">
+      <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-6 mt-6 px-2 sm:px-4">
         <component
           :is="activeComponent"
           v-for="item in featuredList"
@@ -61,7 +61,7 @@
 
     <div
       v-if="contentList.length"
-      class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8 px-2 sm:px-4"
+      class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-6 mt-8 px-2 sm:px-4"
     >
       <component
         :is="activeComponent"
@@ -104,6 +104,8 @@ const featuredList = ref([])
 const loading = ref(false)
 const hasSearched = ref(false)
 
+const shuffleArray = (arr) => arr.sort(() => Math.random() - 0.5)
+
 const categoryMap = {
   Anime,
   Manga,
@@ -133,34 +135,34 @@ const fetchContent = async () => {
 
     switch (activeCategory.value) {
       case 'Anime':
-        res = await axios.get(`https://api.jikan.moe/v4/anime?q=${searchQuery.value}&limit=20`)
-        contentList.value = res.data.data || []
+        res = await axios.get(`https://api.jikan.moe/v4/anime?q=${searchQuery.value}`)
+        contentList.value = shuffleArray(res.data.data || [])
         break
 
       case 'Manga':
-        res = await axios.get(`https://api.jikan.moe/v4/manga?q=${searchQuery.value}&limit=20`)
-        contentList.value = res.data.data || []
+        res = await axios.get(`https://api.jikan.moe/v4/manga?q=${searchQuery.value}`)
+        contentList.value = shuffleArray(res.data.data || [])
         break
 
       case 'Movies':
         res = await axios.get(
           `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${searchQuery.value}`,
         )
-        contentList.value = res.data.results || []
+        contentList.value = shuffleArray(res.data.results || [])
         break
 
       case 'Series':
         res = await axios.get(
           `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${searchQuery.value}`,
         )
-        contentList.value = res.data.results || []
+        contentList.value = shuffleArray(res.data.results || [])
         break
 
       case 'Games':
         res = await axios.get(
           `https://api.rawg.io/api/games?key=${RAWG_KEY}&search=${searchQuery.value}`,
         )
-        contentList.value = res.data.results || []
+        contentList.value = shuffleArray(res.data.results || [])
         break
 
       case 'Web Novels':
@@ -174,13 +176,13 @@ const fetchContent = async () => {
             console.warn('Unexpected string response — switching to fallback API')
             throw new Error('Invalid JSON')
           }
-          contentList.value = response.data.results || response.data || []
+          contentList.value = shuffleArray(response.data.results || response.data || [])
         } catch (error) {
           console.error('Web Novel fetch failed, using fallback:', error)
           const fallback = await axios.get(
-            `https://api.jikan.moe/v4/manga?q=${searchQuery.value}&genres_exclude=12&limit=20`,
+            `https://api.jikan.moe/v4/manga?q=${searchQuery.value}&genres_exclude=12`,
           )
-          contentList.value = fallback.data.data || []
+          contentList.value = shuffleArray(fallback.data.data || [])
         }
         break
     }
@@ -197,27 +199,27 @@ const loadFeaturedContent = async () => {
     switch (activeCategory.value) {
       case 'Movies':
         res = await axios.get(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_KEY}`)
-        featuredList.value = res.data.results.slice(0, 8)
+        featuredList.value = shuffleArray(res.data.results.slice(0, 14))
         break
       case 'Series':
         res = await axios.get(`https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_KEY}`)
-        featuredList.value = res.data.results.slice(0, 8)
+        featuredList.value = shuffleArray(res.data.results.slice(0, 14))
         break
       case 'Anime':
-        res = await axios.get(`https://api.jikan.moe/v4/top/anime?limit=8`)
-        featuredList.value = res.data.data
+        res = await axios.get(`https://api.jikan.moe/v4/top/anime?limit=14`)
+        featuredList.value = shuffleArray(res.data.data)
         break
       case 'Games':
-        res = await axios.get(`https://api.rawg.io/api/games?key=${RAWG_KEY}&ordering=-rating&page_size=8`)
-        featuredList.value = res.data.results
+        res = await axios.get(`https://api.rawg.io/api/games?key=${RAWG_KEY}&ordering=-rating&page_size=14`)
+        featuredList.value = shuffleArray(res.data.results)
         break
       case 'Manga':
-        res = await axios.get(`https://api.jikan.moe/v4/top/manga?limit=8`)
-        featuredList.value = res.data.data
+        res = await axios.get(`https://api.jikan.moe/v4/top/manga?limit=14`)
+        featuredList.value = shuffleArray(res.data.data)
         break
       case 'Web Novels':
-        res = await axios.get(`https://api.jikan.moe/v4/manga?q=novel&limit=8`)
-        featuredList.value = res.data.data
+        res = await axios.get(`https://api.jikan.moe/v4/manga?q=novel&limit=14`)
+        featuredList.value = shuffleArray(res.data.data)
         break
     }
   } catch (err) {
